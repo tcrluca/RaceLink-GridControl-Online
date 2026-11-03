@@ -1,4 +1,4 @@
--- RaceLink GridControl Online 0.2.0
+-- RaceLink GridControl Online 0.2.1
 -- Server-loaded local-car rolling collision controller.
 local function newController()
 -- Event-configured local-car collision control. Each participant must run the app.
@@ -153,16 +153,7 @@ function script.update(dt)
     channel.message=text
     channel.serverTick=(channel.serverTick+1)%1000000000
   end
-  if text~=lastStatus then ac.log('[RaceLink GridControl Online 0.2.0] '..text);lastStatus=text end
-end
-function script.drawUI()
-  -- Visible status also confirms the companion is alive if the app is missing.
-  ui.transparentWindow('RaceLinkGridControlOnlineStatus',vec2(24,350),vec2(610,82),true,false,function()
-    ui.drawRectFilled(vec2(0,0),vec2(610,82),rgbm(0.025,0.035,0.05,0.92),6)
-    ui.dwriteDrawText('GRIDCONTROL ONLINE 0.2.0',18,vec2(12,8),rgbm(0.3,0.85,1,1))
-    ui.dwriteDrawText(statusText(),16,vec2(12,36),rgbm(1,1,1,1))
-    ui.dwriteDrawText('Local car only | requires GridControl 0.7.8.16.31+',12,vec2(12,62),rgbm(0.7,0.75,0.8,1))
-  end)
+  if text~=lastStatus then ac.log('[RaceLink GridControl Online 0.2.1] '..text);lastStatus=text end
 end
 ac.onRelease(function()
   controller.release()
