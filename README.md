@@ -11,11 +11,13 @@ and overlap APIs, and logs changes to `custom_shaders_patch.log`.
 It never changes collisions, controls, penalties, files, or car physics. It makes
 no network requests and does not collect or transmit driver information.
 
-Add the following to the server's CSP **Extra Options**, replacing 97cd25505c4698ca6e267d85c75deb567f66138f
-with the full commit containing the reviewed script:
+Test configuration for ACSM with its two built-in scripts occupying slots 0 and 1.
+The numeric slot is under verification; the earlier named section did not load
+in the first client test. Preserve existing scripts and choose the next unused
+numeric slot if your server already uses slot 2. Add to CSP **Extra Options**:
 
 ```ini
-[SCRIPT_RACELINK_DIAGNOSTIC]
+[SCRIPT_2]
 SCRIPT = https://raw.githubusercontent.com/tcrluca/RaceLink-GridControl-Online/97cd25505c4698ca6e267d85c75deb567f66138f/diagnostic.lua
 REQUIRED = 0
 REFRESH_PERIOD = 0
