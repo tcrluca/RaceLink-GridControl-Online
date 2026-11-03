@@ -1,6 +1,6 @@
 # RaceLink GridControl Online
 
-## Companion 0.2.0 — first online integration test
+## Companion 0.2.1 — no standalone diagnostic overlay
 
 `online.lua` is the server-loaded companion for the installed RaceLink GridControl
 app **0.7.8.16.31 or newer**. All participating drivers using rolling ghosting
@@ -8,9 +8,9 @@ must update their app. The companion is downloaded automatically when joining a
 configured server. This is not an anti-cheat or a replacement for the installed app.
 
 The 0.1.0 diagnostic confirmed that CSP grants physics permissions to the online
-script while the installed app remains restricted. The 0.2.0 integration has
-passed mocked LuaJIT tests; physical ghosting and communication through real CSP
-shared memory still require the first in-game test.
+script while the installed app remains restricted. The user confirmed the 0.2.0 integration works in the online test. Version 0.2.1
+removes only the standalone UI callback; collision and bridge logic are unchanged.
+Status remains available in the installed app configuration window and CSP logs.
 
 ### Server configuration
 
@@ -19,7 +19,7 @@ earlier diagnostic section with the following section in **CSP Extra Options**:
 
 ```ini
 [SCRIPT_2]
-SCRIPT = https://raw.githubusercontent.com/tcrluca/RaceLink-GridControl-Online/7bae0fee04922484f9630214a1dd5586f018bb19/online.lua
+SCRIPT = https://raw.githubusercontent.com/tcrluca/RaceLink-GridControl-Online/3b45156843eaa2aed5706aaddf7cd1290076c6da/online.lua
 REQUIRED = 0
 REFRESH_PERIOD = 0
 rollingGhostEnabled = 1
