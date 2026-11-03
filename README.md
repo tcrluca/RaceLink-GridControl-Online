@@ -1,39 +1,70 @@
 # RaceLink GridControl Online
 
-Companion online scripts for the RaceLink GridControl CSP Lua app.
+## Companion 0.2.0 — first online integration test
 
-## Diagnostic 0.1.0
+`online.lua` is the server-loaded companion for the installed RaceLink GridControl
+app **0.7.8.16.31 or newer**. All participating drivers using rolling ghosting
+must update their app. The companion is downloaded automatically when joining a
+configured server. This is not an anti-cheat or a replacement for the installed app.
 
-`diagnostic.lua` checks whether CSP grants physics permissions to a server-loaded
-online script. It displays `physics.allowed` and the availability of the collision
-and overlap APIs, and logs changes to `custom_shaders_patch.log`.
+The 0.1.0 diagnostic confirmed that CSP grants physics permissions to the online
+script while the installed app remains restricted. The 0.2.0 integration has
+passed mocked LuaJIT tests; physical ghosting and communication through real CSP
+shared memory still require the first in-game test.
 
-It never changes collisions, controls, penalties, files, or car physics. It makes
-no network requests and does not collect or transmit driver information.
+### Server configuration
 
-Test configuration for ACSM with its two built-in scripts occupying slots 0 and 1.
-The numeric slot is under verification; the earlier named section did not load
-in the first client test. Preserve existing scripts and choose the next unused
-numeric slot if your server already uses slot 2. Add to CSP **Extra Options**:
+For the ACSM test setup, two built-in scripts occupy slots 0 and 1. Replace the
+earlier diagnostic section with the following section in **CSP Extra Options**:
 
 ```ini
 [SCRIPT_2]
-SCRIPT = https://raw.githubusercontent.com/tcrluca/RaceLink-GridControl-Online/97cd25505c4698ca6e267d85c75deb567f66138f/diagnostic.lua
+SCRIPT = https://raw.githubusercontent.com/tcrluca/RaceLink-GridControl-Online/7bae0fee04922484f9630214a1dd5586f018bb19/online.lua
 REQUIRED = 0
 REFRESH_PERIOD = 0
+rollingGhostEnabled = 1
 ```
 
-Preserve existing server script sections and other CSP settings. Save and restart
-the test race when convenient, then reconnect. A separate diagnostic panel should
-appear near the left side of the screen. `REQUIRED=0` means a download failure
-does not make this script mandatory for joining the server.
+Preserve other sections. Use the next unused numeric script slot if slot 2 is
+already occupied; do not overwrite another script. Keep the existing CSP minimum
+3424, core options D and enabled extra-options support for the current test.
+Save, restart the test event when convenient, close Assetto Corsa to load the
+updated app and reconnect. No changes to car data or track surfaces are required.
+The URL is pinned to a reviewed commit. It does not automatically adopt future code.
 
-`allowed=true` confirms the permission query succeeds in this context. It does
-not yet demonstrate physical ghosting. `allowed=false` means the permission is
-still unavailable in this context. This is a diagnostic release, not a working
-online rolling-start collision controller.
+Both the server setting above and the app/event's **rolling no collision** option
+must be enabled. `rollingGhostEnabled` defaults to false if omitted. `REQUIRED=0`
+allows clients to join if download fails; such a client will not receive ghosting.
 
-To remove the diagnostic, remove only its configuration section and restart the
-test race. The installed GridControl app is not modified.
+### Behavior
+
+The app owns event selection and phase calculation. On each client, it sends the
+current ghosting request to the companion through a versioned CSP shared-memory
+channel. The app does not call physics modification functions online. The companion
+acts only on car index 0 and independently checks online/race/replay state, native
+permissions and CSP build support.
+
+- Formation, pre-start and Safety Car In: request collision disable.
+- Green or option OFF: wait for known separation from all connected cars for 0.5
+  seconds, then restore collisions. Unknown overlap data holds restoration.
+- Missing app heartbeat for more than 2 simulation seconds: request restoration,
+  using the same overlap check. Pausing freezes timers.
+- Failed native calls are retried. Unloading the companion attempts to undo its
+  own collision change, as in the existing offline controller.
+
+An `ONLINE / DISABLED / LOCAL CAR` status means the native call completed without
+an error; verify physical overlap during the controlled test. After green, verify
+`NORMAL / RESTORED`. Every participating client must run the updated app and
+companion; mismatched clients are not guaranteed to have symmetric collisions.
+No network messages, driver data, files or credentials are collected by this module.
+The app's local `physics.allowed=false` diagnostic is expected online and does not
+describe the companion's permission.
+
+### Rollback
+
+To disable the companion, set `rollingGhostEnabled=0`, save and restart the event.
+To return to diagnostics, use `diagnostic.lua` from commit
+`97cd25505c4698ca6e267d85c75deb567f66138f` in the same numeric slot and remove
+`rollingGhostEnabled`. The installed app and server module must be kept compatible.
 
 Reference: [CSP online scripts](https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts).
